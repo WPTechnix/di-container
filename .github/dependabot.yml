@@ -1,0 +1,22 @@
+version: 2
+updates:
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "WPTechnix"
+    labels:
+      - "dependencies"
+    versioning-strategy: "increase-if-necessary"
+    allow:
+      - dependency-type: "direct"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "github_actions"

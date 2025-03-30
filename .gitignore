@@ -1,0 +1,43 @@
+# Composer
+/vendor/
+composer.lock
+
+
+# PHPUnit
+/phpunit.xml
+/phpunit.xml.dist
+/.phpunit.result.cache
+/code-coverage/
+
+# PHPStan/PHPCS
+*.txt
+/.phpcs.cache
+
+# IDE & OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Generated documentation
+/docs/
+
+# PHIVE managed tools
+/.phive
+/tools/*
+!tools/.gitkeep
+
+# Build artifacts
+*.phar
+
+# Environment & sensitive files
+.env
+.env.*
+*.env
+
+# Logs
+*.log
+/logs/
+
+# Cache
+*.cache
