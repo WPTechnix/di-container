@@ -1,23 +1,13 @@
-name: Tests
+name: Documentation
 
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        php: [8.1, 8.2, 8.3, 8.4]
-        stability: [prefer-lowest, prefer-stable]
-
-    name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
+  build:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -26,19 +16,16 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: '8.1'
           extensions: dom, curl, libxml, mbstring, zip
-          coverage: xdebug
+          tools: phpdoc
 
-      - name: Install dependencies
-        run: |
-          composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+      - name: Generate documentation
+        run: phpdoc -d src/ -t docs/api/
 
-      - name: Execute tests
-        run: vendor/bin/phpunit --coverage-clover=coverage.xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+      - name: Deploy documentation
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          file: ./coverage.xml
-          fail_ci_if_error: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          force_orphan: true

@@ -43,7 +43,7 @@
         "phpstan": "vendor/bin/phpstan analyse --memory-limit=4G --level=8 > phpstan.txt",
         "phpcbf": "vendor/bin/phpcbf --standard=PSR12 src/",
         "phpcs": "vendor/bin/phpcs --standard=PSR12 src/ > phpcs.txt",
-        "docs": "tools/phpDocumentor -d src -t docs"
+        "docs": "tools/phpDocumentor -d src -t docs/api"
     },
     "require": {
         "php": ">=8.1",

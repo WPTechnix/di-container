@@ -1,17 +1,21 @@
 # Composer
 /vendor/
 composer.lock
-
+auth.json
 
 # PHPUnit
 /phpunit.xml
 /phpunit.xml.dist
 /.phpunit.result.cache
+/.phpunit.cache/
 /code-coverage/
 
 # PHPStan/PHPCS
 *.txt
 /.phpcs.cache
+.phpstan.cache
+.php-cs-fixer.cache
+.psalm.cache
 
 # IDE & OS files
 .idea/
@@ -21,6 +25,10 @@ Thumbs.db
 
 # Generated documentation
 /docs/
+
+# phpDocumentor specific
+/.phpdoc/
+phpdoc.cache
 
 # PHIVE managed tools
 /.phive
@@ -41,3 +49,4 @@ Thumbs.db
 
 # Cache
 *.cache
+
