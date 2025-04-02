@@ -1,0 +1,72 @@
+{
+    "name": "wptechnix/di-container",
+    "description": "PSR-11 compliant dependency injection container for PHP 8.1+ with autowiring, contextual bindings, attribute-based injection, and service providers.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "dependency-injection",
+        "container",
+        "di",
+        "psr-11",
+        "autowiring",
+        "ioc",
+        "attributes",
+        "php8",
+        "php-di"
+    ],
+    "autoload": {
+        "psr-4": {
+            "WPTechnix\\DI\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "WPTechnix\\Tests\\DI\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "WPTechnix",
+            "email": "developer@wptechnix.com"
+        }
+    ],
+    "config": {
+        "platform": {
+            "php": "8.1"
+        },
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "scripts": {
+        "tests": "rm -rf ./code-coverage && rm -f coverage.xml && XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html=./code-coverage --testdox --colors",
+        "test": "composer run tests",
+        "phpstan": "vendor/bin/phpstan analyse --memory-limit=4G --level=8 > phpstan.txt",
+        "phpcbf": "vendor/bin/phpcbf --standard=PSR12 src/",
+        "phpcs": "vendor/bin/phpcs --standard=PSR12 src/ > phpcs.txt"
+    },
+    "require": {
+        "php": ">=8.1",
+        "psr/container": "^2.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpunit/phpunit": "^10.5",
+        "squizlabs/php_codesniffer": "^3.12"
+    },
+    "archive": {
+        "exclude": [
+            "/.github",
+            "/.vscode",
+            "/.idea",
+            "/tests",
+            "/code-coverage",
+            "/.gitignore",
+            "/.editorconfig",
+            "/phpstan.neon",
+            "/composer.lock",
+            "*.txt",
+            "*.xml"
+        ]
+    }
+}

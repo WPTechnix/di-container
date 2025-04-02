@@ -1,0 +1,18 @@
+# Composer
+/vendor/
+/composer.lock
+
+# PHPUnit
+/.phpunit.result.cache
+/code-coverage/
+/coverage.xml
+
+# IDE & System Files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Generated files
+*.txt
+*.cache
