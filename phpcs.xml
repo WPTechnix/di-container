@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<ruleset name="WPTechnix DI Container Coding Standard">
+  <description>PSR-12 coding standards for WPTechnix DI Container</description>
+
+  <!-- Display progress -->
+  <arg value="p"/>
+  <!-- Use colors in output -->
+  <arg name="colors"/>
+  <!-- Show sniff codes in all reports -->
+  <arg value="s"/>
+  <!-- Use PSR-12 -->
+  <rule ref="PSR12"/>
+
+  <!-- Paths to check -->
+  <file>src</file>
+  <file>tests</file>
+
+  <!-- Exclude some files and directories -->
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+  <exclude-pattern>*/docs/*</exclude-pattern>
+  <exclude-pattern>*/code-coverage/*</exclude-pattern>
+
+  <!-- Exclude the rule only for test files -->
+  <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
+    <exclude-pattern>*/tests/*</exclude-pattern>
+  </rule>
+</ruleset>

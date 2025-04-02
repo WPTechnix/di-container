@@ -1,0 +1,38 @@
+# EditorConfig helps maintain consistent coding styles
+# for multiple developers working on the same project.
+# http://editorconfig.org/
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# PHP files follow PSR-12 standard
+[*.php]
+indent_size = 4
+indent_style = space
+
+# Markdown files allow trailing whitespace
+[*.md]
+trim_trailing_whitespace = false
+
+# Web files use 4 spaces
+[*.{html,css,js}]
+indent_size = 4
+
+# Configuration files often use 2 spaces
+[*.{json,yml,yaml}]
+indent_size = 2
+
+# XML files
+[*.xml]
+indent_size = 4
+
+# Makefiles require tabs
+[Makefile]
+indent_style = tab

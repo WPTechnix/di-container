@@ -1,0 +1,46 @@
+version: 2
+updates:
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    assignees:
+      - "WPTechnix"
+    labels:
+      - "dependencies"
+      - "php"
+    versioning-strategy: "widen"
+    allow:
+      - dependency-type: "direct"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    open-pull-requests-limit: 5
+    pull-request-branch-name:
+      separator: "-"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    rebase-strategy: "auto"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "first-monday"
+      time: "09:00"
+      timezone: "UTC"
+    assignees:
+      - "WPTechnix"
+    labels:
+      - "dependencies"
+      - "github_actions"
+    open-pull-requests-limit: 3
+    pull-request-branch-name:
+      separator: "-"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
