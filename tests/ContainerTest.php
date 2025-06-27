@@ -1,24 +1,14 @@
 <?php
 
-/**
- * Comprehensive unit tests for Container class following best practices.
- *
- * @package WPTechnix\DI\Tests
- * @author WPTechnix <developer@wptechnix.com>
- */
-
 declare(strict_types=1);
 
-namespace WPTechnix\Tests\DI;
+namespace WPTechnix\DI\Tests;
 
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use stdClass;
 use ReflectionClass;
-use WPTechnix\DI\Attributes\Inject;
 use WPTechnix\DI\Container;
-use WPTechnix\DI\Contracts\ContainerInterface;
-use WPTechnix\DI\Contracts\ProviderInterface;
 use WPTechnix\DI\Exceptions\AutowiringException;
 use WPTechnix\DI\Exceptions\BindingException;
 use WPTechnix\DI\Exceptions\CircularDependencyException;
@@ -28,9 +18,38 @@ use WPTechnix\DI\Exceptions\InstantiationException;
 use WPTechnix\DI\Exceptions\ResolutionException;
 use WPTechnix\DI\Exceptions\ServiceAlreadyBoundException;
 use WPTechnix\DI\Exceptions\ServiceNotFoundException;
+use WPTechnix\DI\Tests\Fixture\AbstractClass;
+use WPTechnix\DI\Tests\Fixture\AnotherImplementation;
+use WPTechnix\DI\Tests\Fixture\TestInterface;
+use WPTechnix\DI\Tests\Fixture\AnotherInterface;
+use WPTechnix\DI\Tests\Fixture\CircularA;
+use WPTechnix\DI\Tests\Fixture\CircularB;
+use WPTechnix\DI\Tests\Fixture\NestedDependency;
+use WPTechnix\DI\Tests\Fixture\NonExistentServicePropertyInjection;
+use WPTechnix\DI\Tests\Fixture\ServicePrivateConstructor;
+use WPTechnix\DI\Tests\Fixture\ServiceProvider;
+use WPTechnix\DI\Tests\Fixture\ServiceWithAbstractClassDeps;
+use WPTechnix\DI\Tests\Fixture\ServiceWithCircularDependencyViaMethodInjection;
+use WPTechnix\DI\Tests\Fixture\ServiceWithDependency;
+use WPTechnix\DI\Tests\Fixture\ServiceWithImproperPropertyInjection;
+use WPTechnix\DI\Tests\Fixture\ServiceWithMethodInjection;
+use WPTechnix\DI\Tests\Fixture\ServiceWithNonExistentDependencyViaMethodInjection;
+use WPTechnix\DI\Tests\Fixture\ServiceWithNullableDefaultParam;
+use WPTechnix\DI\Tests\Fixture\ServiceWithNullableParam;
+use WPTechnix\DI\Tests\Fixture\ServiceWithoutClassOrInterfaceTypehint;
+use WPTechnix\DI\Tests\Fixture\ServiceWithParameters;
+use WPTechnix\DI\Tests\Fixture\ServiceWithPrimitiveParam;
+use WPTechnix\DI\Tests\Fixture\ServiceWithPrivatePropertyInjection;
+use WPTechnix\DI\Tests\Fixture\ServiceWithPropertyInjection;
+use WPTechnix\DI\Tests\Fixture\ServiceWithUnionType;
+use WPTechnix\DI\Tests\Fixture\SimpleImplementation;
+use WPTechnix\DI\Tests\Fixture\TestTrait;
+use WPTechnix\DI\Tests\Fixture\ThrowingService;
+use WPTechnix\DI\Tests\Fixture\ThrowingServiceProvider;
+use WPTechnix\DI\Tests\Fixture\ValueImplementation;
 
 /**
- * Comprehensive Container Test with focused test methods.
+ * Container Tests
  *
  * @covers \WPTechnix\DI\Container
  * @covers \WPTechnix\DI\Attributes\Inject
@@ -97,14 +116,14 @@ class ContainerTest extends TestCase
     //------------------------------------------------------------------
 
     /**
-     * Tests that constructor registers ContainerInterface.
+     * Tests that constructor registers Container.
      *
      * @covers \WPTechnix\DI\Container::__construct
      */
-    public function testConstructorRegistersContainerInterface(): void
+    public function testConstructorRegistersContainer(): void
     {
-        $this->assertTrue($this->container->hasBinding(ContainerInterface::class));
-        $this->assertSame($this->container, $this->container->get(ContainerInterface::class));
+        $this->assertTrue($this->container->hasBinding(Container::class));
+        $this->assertSame($this->container, $this->container->get(Container::class));
     }
 
     //------------------------------------------------------------------
@@ -565,15 +584,15 @@ class ContainerTest extends TestCase
     }
 
     /**
-     * Tests that reset preserves ContainerInterface binding.
+     * Tests that reset preserves Container binding.
      *
      * @covers \WPTechnix\DI\Container::reset
      */
-    public function testResetPreservesContainerInterfaceBinding(): void
+    public function testResetPreservesContainerBinding(): void
     {
         $this->container->reset();
-        $this->assertTrue($this->container->hasBinding(ContainerInterface::class));
-        $this->assertSame($this->container, $this->container->get(ContainerInterface::class));
+        $this->assertTrue($this->container->hasBinding(Container::class));
+        $this->assertSame($this->container, $this->container->get(Container::class));
     }
 
     /**
@@ -1593,7 +1612,7 @@ class ContainerTest extends TestCase
      */
     public function testProviderRegistration(): void
     {
-        $this->container->provider(new TestServiceProvider());
+        $this->container->provider(ServiceProvider::class);
 
         $this->assertTrue($this->container->hasBinding(TestInterface::class));
         $this->assertTrue($this->container->hasBinding(AnotherInterface::class));
@@ -1612,7 +1631,7 @@ class ContainerTest extends TestCase
      */
     public function testProviderRegistrationWithClassName(): void
     {
-        $this->container->provider(TestServiceProvider::class);
+        $this->container->provider(ServiceProvider::class);
 
         $this->assertTrue($this->container->hasBinding(TestInterface::class));
         $this->assertTrue($this->container->hasBinding(AnotherInterface::class));
@@ -1682,377 +1701,5 @@ class ContainerTest extends TestCase
             $this->assertStringContainsString('Service: NonExistentClass', $debugInfo);
             $this->assertStringContainsString('Context:', $debugInfo);
         }
-    }
-}
-
-// Fixtures for testing
-trait TestTrait
-{
-}
-
-interface TestInterface
-{
-    public function getName(): string;
-}
-
-interface AnotherInterface
-{
-    public function getValue(): int;
-}
-
-interface OrphanInterface
-{
-    public function getValue(): int;
-}
-
-class SimpleImplementation extends AbstractClass implements TestInterface
-{
-    public function doSomething(): void
-    {
-        // Do nothing
-    }
-
-    public function getName(): string
-    {
-        return 'Simple';
-    }
-}
-
-class AnotherImplementation implements TestInterface
-{
-    public function getName(): string
-    {
-        return 'Another';
-    }
-}
-
-class ValueImplementation implements AnotherInterface
-{
-    public function getValue(): int
-    {
-        return 42;
-    }
-}
-
-abstract class AbstractClass
-{
-    abstract public function doSomething(): void;
-}
-
-class ServiceWithDependency
-{
-    private TestInterface $dependency;
-
-    public function __construct(TestInterface $dependency)
-    {
-        $this->dependency = $dependency;
-    }
-
-    public function getDependency(): TestInterface
-    {
-        return $this->dependency;
-    }
-}
-
-class ServiceWithAbstractClassDeps
-{
-    protected TestInterface $dependency;
-
-    public function __construct(AbstractClass $dependency)
-    {
-        $this->dependency = $dependency;
-    }
-
-    public function getDependency(): TestInterface
-    {
-        return $this->dependency;
-    }
-}
-
-class NestedDependency
-{
-    private ServiceWithDependency $service;
-
-    public function __construct(ServiceWithDependency $service)
-    {
-        $this->service = $service;
-    }
-
-    public function getService(): ServiceWithDependency
-    {
-        return $this->service;
-    }
-}
-
-class ServicePrivateConstructor
-{
-    private function __construct()
-    {
-    }
-}
-
-class ServiceWithParameters
-{
-    private $test;
-
-    private string $name;
-    private int $value;
-    private bool $flag;
-    private ?array $options;
-
-    public function __construct(
-        TestInterface $test,
-        $name,
-        null|int|string $union_type,
-        ?string $nullable,
-        int $value = 0,
-        bool $flag = false,
-        ?array $options = null,
-        int|string $union_type_default = 0,
-        ?string $additional_with_type = null,
-        $additional = null,
-    ) {
-        $this->test = $test;
-        $this->name = $name;
-        $this->value = $value;
-        $this->flag = $flag;
-        $this->options = $options;
-    }
-
-    public function isServiceSet(): bool
-    {
-        return !empty($this->test) && ($this->test instanceof TestInterface);
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function getValue(): int
-    {
-        return $this->value;
-    }
-
-    public function getFlag(): bool
-    {
-        return $this->flag;
-    }
-
-    public function getOptions(): ?array
-    {
-        return $this->options;
-    }
-}
-
-class ServiceWithUnionType
-{
-    private string|int $value;
-
-    public function __construct(string|int $value)
-    {
-        $this->value = $value;
-    }
-}
-
-class ServiceWithoutClassOrInterfaceTypehint
-{
-    private int $value;
-
-    public function __construct(int $value)
-    {
-        $this->value = $value;
-    }
-}
-
-class ServiceWithNullableParam
-{
-    private ?TestInterface $dependency;
-
-    public function __construct(?TestInterface $dependency)
-    {
-        $this->dependency = $dependency;
-    }
-
-    public function getDependency(): ?TestInterface
-    {
-        return $this->dependency;
-    }
-}
-
-class ServiceWithNullableDefaultParam
-{
-    private ?TestInterface $dependency;
-
-    public function __construct(?TestInterface $dependency = null)
-    {
-        $this->dependency = $dependency;
-    }
-
-    public function getDependency(): ?TestInterface
-    {
-        return $this->dependency;
-    }
-}
-
-class ServiceWithPrimitiveParam
-{
-    private string $name;
-
-    public function __construct(string $name)
-    {
-        $this->name = $name;
-    }
-
-    public function getName()
-    {
-        return $this->name;
-    }
-}
-
-class CircularA
-{
-    public function __construct(CircularB $b)
-    {
-    }
-}
-
-class CircularB
-{
-    public function __construct(CircularA $a)
-    {
-    }
-}
-
-class ThrowingService
-{
-    public function __construct()
-    {
-        throw new RuntimeException('Exception during instantiation');
-    }
-}
-
-class ServiceWithImproperPropertyInjection
-{
-    #[Inject]
-    public $improperDep;
-}
-
-class ServiceWithPrivatePropertyInjection
-{
-    #[Inject]
-    private TestInterface $privateDep;
-}
-
-class NonExistentServicePropertyInjection
-{
-    #[Inject('NonExistentService')]
-    public $nonExistentDep;
-}
-
-class ServiceWithPropertyInjection
-{
-    #[Inject]
-    public TestInterface $publicDependency;
-
-    #[Inject(AnotherImplementation::class)]
-    public TestInterface $explicitDependency;
-
-    public function getExplicitDependency(): TestInterface
-    {
-        return $this->explicitDependency;
-    }
-}
-
-class ServiceWithMethodInjection
-{
-    private $dependencies = [];
-
-    private $random;
-
-    public function setRandomProperty(int $random)
-    {
-        // Will be skipped by DI Container.
-        $this->random = $random;
-    }
-
-    public function setAnotherRandomProperty($another_random)
-    {
-        // Will be skipped by DI Container.
-        $this->random = $another_random;
-    }
-
-    public function setDependency(TestInterface $test): void
-    {
-        $this->dependencies['test'] = $test;
-    }
-
-    public function setMultipleProps(AnotherInterface $another, $prop)
-    {
-        // DI Container skip methods with multiple arguments
-        $this->dependencies['another'] = $another;
-        $this->random = $prop;
-    }
-
-    public function setOptionalDependency(?AnotherInterface $another)
-    {
-        $this->dependencies['another'] = $another;
-    }
-
-    public function setNonExistentOptionalDependency(?OrphanInterface $orphan)
-    {
-        $this->dependencies['orphan'] = $orphan;
-    }
-
-    public function getDependencies(): array
-    {
-        return $this->dependencies;
-    }
-}
-
-class ServiceWithNonExistentDependencyViaMethodInjection
-{
-    private OrphanInterface $orphan;
-
-    public function setOrphan(OrphanInterface $orphan): void
-    {
-        $this->orphan = $orphan;
-    }
-}
-
-class ServiceWithCircularDependencyViaMethodInjection
-{
-    private CircularA $service;
-
-    public function setDependency(CircularA $service): void
-    {
-        $this->service = $service;
-    }
-}
-
-class TestServiceProvider implements ProviderInterface
-{
-    public function register(ContainerInterface $container): void
-    {
-        $container->singleton(TestInterface::class, SimpleImplementation::class);
-        $container->singleton(AnotherInterface::class, ValueImplementation::class);
-    }
-
-    public function boot(ContainerInterface $container): void
-    {
-        // Not used in tests
-    }
-}
-
-class ThrowingServiceProvider implements ProviderInterface
-{
-    public function register(ContainerInterface $container): void
-    {
-        throw new RuntimeException('Provider exception');
-    }
-
-    public function boot(ContainerInterface $container): void
-    {
-        // Not used in tests
     }
 }

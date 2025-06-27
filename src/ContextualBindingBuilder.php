@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace WPTechnix\DI;
 
 use Closure;
-use WPTechnix\DI\Contracts\ContainerInterface;
 use WPTechnix\DI\Contracts\ContextualBindingBuilderInterface;
+use WPTechnix\DI\Exceptions\BindingException;
 
 /**
  * Builder for contextual bindings.
@@ -26,9 +26,9 @@ class ContextualBindingBuilder implements ContextualBindingBuilderInterface
     /**
      * The container instance.
      *
-     * @var ContainerInterface
+     * @var Container
      */
-    protected ContainerInterface $container;
+    protected Container $container;
 
     /**
      * The concrete instances that need contextual bindings.
@@ -47,10 +47,10 @@ class ContextualBindingBuilder implements ContextualBindingBuilderInterface
     /**
      * Create a new contextual binding builder.
      *
-     * @param ContainerInterface $container The container instance.
+     * @param Container $container The container instance.
      * @param array<string> $concrete The concrete classes.
      */
-    public function __construct(ContainerInterface $container, array $concrete)
+    public function __construct(Container $container, array $concrete)
     {
         $this->container = $container;
         $this->concrete  = $concrete;
@@ -68,8 +68,16 @@ class ContextualBindingBuilder implements ContextualBindingBuilderInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @param string|Closure(Container, array<string, mixed>): object $implementation
+     *         The concrete class name or a factory closure that will be used
+     *         to create the instance.
+     *
+     * @return Container Returns the container instance after the binding is registered.
+     *
+     * @throws BindingException When the implementation is invalid.
      */
-    public function give(string|Closure $implementation): ContainerInterface
+    public function give(string|Closure $implementation): Container
     {
         foreach ($this->concrete as $concrete) {
             $this->container->addContextualBinding($concrete, $this->abstract, $implementation);

@@ -8,7 +8,6 @@
  *
  * @package WPTechnix\DI
  * @author WPTechnix <developers@wptechnix.com>
- * @since 0.1.0
  */
 
 declare(strict_types=1);
@@ -16,8 +15,8 @@ declare(strict_types=1);
 namespace WPTechnix\DI;
 
 use Closure;
+use Psr\Container\ContainerInterface;
 use WPTechnix\DI\Attributes\Inject;
-use WPTechnix\DI\Contracts\ContainerInterface;
 use WPTechnix\DI\Contracts\ProviderInterface;
 use WPTechnix\DI\Exceptions\AutowiringException;
 use WPTechnix\DI\Exceptions\BindingException;
@@ -67,7 +66,6 @@ class Container implements ContainerInterface
      * }>
      */
     private array $bindings = [];
-
 
     /**
      * Contextual bindings.
@@ -122,11 +120,32 @@ class Container implements ContainerInterface
     public function __construct()
     {
 
-        $this->instance(ContainerInterface::class, $this);
+        $this->instance(Container::class, $this);
     }
 
     /**
-     * {@inheritDoc}
+     * Register an existing instance as a singleton.
+     *
+     * This method allows registering an already instantiated object within the container
+     * as a singleton, making it available for future retrievals.
+     *
+     * @template T of object
+     *
+     * @param string|class-string<T> $id Service identifier or class name.
+     * @param object $instance Instance to register.
+     *
+     * @phpstan-param ( $id is class-string<T> ? T : object ) $instance Instance to register.
+     *
+     * @return static Returns the container instance for method chaining.
+     *
+     * @example
+     *  ```php
+     *  $logger = new Logger();
+     *  $container->instance(LoggerInterface::class, $logger);
+     *
+     *  // Later, the same instance can be retrieved
+     *  $sameLogger = $container->get(LoggerInterface::class);
+     *  ```
      *
      * @throws ServiceAlreadyBoundException When instance is already registered.
      */
@@ -166,7 +185,22 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Check if a service has been explicitly bound.
+     *
+     * Unlike the standard 'has' method which checks if a service can be resolved,
+     * this method strictly checks if a binding has been explicitly registered.
+     *
+     * @param string $id Service identifier.
+     *
+     * @return bool Returns true if the identifier has been bound, false otherwise.
+     *
+     * @example
+     *  ```php
+     *  $container->bind(UserRepositoryInterface::class, UserRepository::class);
+     *
+     *  // Check if a specific service is explicitly bound
+     *  $isBound = $container->hasBinding(UserRepositoryInterface::class);
+     *  ```
      */
     public function hasBinding(string $id): bool
     {
@@ -174,9 +208,18 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Resets the container to its initial state.
      *
-     * @noinspection PhpUnhandledExceptionInspection
+     * Removes all bindings, instances, aliases, and other registered services
+     * from the container, effectively resetting it to a clean state.
+     *
+     * @return static Returns the container instance for method chaining.
+     *
+     * @example
+     *  ```php
+     *  // After using the container extensively
+     *  $container->reset(); // Clears all bindings and registered services
+     *  ```
      */
     public function reset(): static
     {
@@ -188,16 +231,44 @@ class Container implements ContainerInterface
         $this->dependencyChain   = [];
         $this->contextualBindings = []; // Reset contextual bindings as well
 
-        $this->instance(ContainerInterface::class, $this);
+        $this->instances[ Container::class ] = $this;
 
         return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * Binds a factory callback.
+     *
+     * Factory bindings provide a way to define how an object should be created
+     * each time it is requested from the container.
+     *
+     * @template T of object
+     * @param string|class-string<T> $id Service identifier.
+     * @param ( $id is class-string<T> ?
+     *          (Closure(self, array<string, mixed>): T ) :
+     *          (Closure(self, array<string, mixed>): object)
+     *        ) $factory Factory callback.
+     * @param bool $override True to override preregistered implementation if there's any.
+     *                       Default false.
+     *
+     * @return static Returns the container instance for method chaining.
      *
      * @throws ServiceAlreadyBoundException When service is already bound.
      * @throws BindingException When factory cannot be registered.
+     *
+     * @example
+     *  ```php
+     *  $container->factory(DatabaseConnection::class, function($container, $params) {
+     *      return new DatabaseConnection(
+     *          $params['host'] ?? 'localhost',
+     *          $params['port'] ?? 3306
+     *      );
+     *  });
+     *
+     *  // When retrieved, a new instance is created each time
+     *  $db1 = $container->get(DatabaseConnection::class, ['host' => 'server1']);
+     *  $db2 = $container->get(DatabaseConnection::class, ['host' => 'server2']);
+     *  ```
      */
     public function factory(string $id, Closure $factory, bool $override = false): static
     {
@@ -205,10 +276,36 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Binds an interface or class to a concrete implementation.
+     *
+     * This method allows associating an abstract type (interface or class) with
+     * a concrete implementation that should be instantiated when the abstract type
+     * is requested.
+     *
+     * @template T of object
+     * @param string|class-string<T> $id Abstract type identifier.
+     * @param ( $id is class-string<T> ?
+     *          ( class-string<T>|(Closure(self, array<string, mixed>): T) ) :
+     *         ( string|(Closure(self, array<string, mixed>): object) )
+     *       ) $implementation Concrete class name or factory closure.
+     * @param bool $shared Whether to share the instance across multiple resolutions.
+     * @param bool $override True to override preregistered implementation if there's any.
+     *
+     * @return static Returns the container instance for method chaining.
      *
      * @throws ServiceAlreadyBoundException When service is already bound.
      * @throws BindingException When binding cannot be registered.
+     *
+     * @example
+     *  ```php
+     *  // Bind an interface to a concrete implementation
+     *  $container->bind(UserRepositoryInterface::class, UserRepository::class);
+     *
+     *  // Bind with custom instantiation
+     *  $container->bind(ConfigInterface::class, function($container) {
+     *      return new Config('/path/to/config.json');
+     *  });
+     *  ```
      */
     public function bind(
         string $id,
@@ -243,7 +340,26 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Begin a new contextual binding.
+     *
+     * Contextual bindings allow for different implementations of a dependency
+     * based on the context in which it is being resolved.
+     *
+     * @param string|array<string> $concrete The concrete class(es) that should receive a contextual binding.
+     *
+     * @return ContextualBindingBuilder A builder interface to specify the contextual binding.
+     *
+     * @example
+     *  ```php
+     *  // Different logger for AdminService vs. UserService
+     *  $container->when(AdminService::class)
+     *           ->needs(LoggerInterface::class)
+     *           ->give(AdminLogger::class);
+     *
+     *  $container->when(UserService::class)
+     *           ->needs(LoggerInterface::class)
+     *           ->give(UserLogger::class);
+     *  ```
      */
     public function when(string|array $concrete): ContextualBindingBuilder
     {
@@ -251,9 +367,27 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Add a contextual binding to the container.
+     *
+     * Direct method to register a contextual binding without using the builder pattern.
+     *
+     * @param string         $concrete       The concrete class that receives the contextual binding.
+     * @param string         $abstract       The abstract type that should be resolved differently.
+     * @param string|Closure(self, array<string, mixed>): object $implementation The implementation or factory to use.
+     *
+     * @return static Returns the container instance for method chaining.
      *
      * @throws BindingException When the implementation class does not exist.
+     *
+     * @example
+     *  ```php
+     *  // Directly add a contextual binding
+     *  $container->addContextualBinding(
+     *      AdminService::class,
+     *      LoggerInterface::class,
+     *      AdminLogger::class
+     *  );
+     *  ```
      */
     public function addContextualBinding(string $concrete, string $abstract, string|Closure $implementation): static
     {
@@ -627,7 +761,19 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Resolves a type from the container with optional parameters.
+     *
+     * Creates an instance of the requested type with any bindings applied and
+     * dependencies automatically injected. Additional constructor parameters
+     * can be provided.
+     *
+     * @template T of object
+     * @param string|class-string<T> $id Service identifier.
+     * @param array<string, mixed> $parameters Additional constructor parameters.
+     *
+     * @return object The resolved instance.
+     *
+     * @phpstan-return ( $id is class-string<T> ? T : object )
      *
      * @throws ServiceNotFoundException When the service is not found.
      * @throws CircularDependencyException When circular dependencies are detected.
@@ -636,6 +782,15 @@ class Container implements ContainerInterface
      * @throws InjectionException When injection fails.
      * @throws ResolutionException When resolution fails for other reasons.
      * @throws ContainerException When unexpected errors occur.
+     *
+     * @example
+     *  ```php
+     *  // Resolve a service with additional parameters
+     *  $user = $container->resolve(UserService::class, [
+     *      'role' => 'admin',
+     *      'forceCreate' => true
+     *  ]);
+     *  ```
      */
     public function resolve(string $id, array $parameters = []): object
     {
@@ -898,24 +1053,33 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Pass the container to a service provider for registration.
+     *
+     * Service providers offer a way to organize related container bindings
+     * and bootstrapping logic in separate classes.
+     *
+     * @param class-string<ProviderInterface> $providerClass Service Provider class name.
+     *
+     * @return static Returns the container instance for method chaining.
      *
      * @throws ContainerException When provider registration fails.
+     *
+     * @example
+     *  ```php
+     *  $container->provider(CacheServiceProvider::class);
+     *  ```
      */
-    public function provider(ProviderInterface|string $provider): static
+    public function provider(string $providerClass): static
     {
         try {
-            if (is_string($provider)) {
-                $provider = new $provider();
-            }
-            $provider->register($this);
+            $provider = $this->resolve($providerClass);
+            $provider->register();
 
             return $this;
         } catch (Throwable $e) {
-            $providerName = is_object($provider) ? get_class($provider) : $provider;
             throw new ContainerException(
-                sprintf('Failed to register provider "%s": %s', $providerName, $e->getMessage()),
-                $providerName,
+                sprintf('Failed to register provider "%s": %s', $providerClass, $e->getMessage()),
+                $providerClass,
                 $this->dependencyChain,
                 [
                  'operation' => 'provider',
@@ -927,7 +1091,15 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Retrieve a service from the container.
+     *
+     * Implementation of the PSR-11 get method to resolve an entry from the container.
+     *
+     * @template T of object
+     *
+     * @param string|class-string<T> $id Identifier of the entry to look for.
+     *
+     * @return ($id is class-string<T> ? T : object) The resolved entry.
      *
      * @throws ServiceNotFoundException When the service is not found.
      * @throws CircularDependencyException When circular dependencies are detected.
@@ -936,6 +1108,15 @@ class Container implements ContainerInterface
      * @throws InjectionException When injection fails.
      * @throws ResolutionException When resolution fails for other reasons.
      * @throws ContainerException When unexpected errors occur.
+     *
+     * @example
+     *  ```php
+     *  // Retrieve a service that has been previously bound
+     *  $userRepository = $container->get(UserRepositoryInterface::class);
+     *
+     *  // Retrieve a service with auto-wiring
+     *  $logger = $container->get(LoggerInterface::class);
+     *  ```
      */
     public function get(string $id)
     {
@@ -943,10 +1124,37 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Binds a singleton implementation.
+     *
+     * Registers a binding that will return the same instance each time
+     * it is resolved from the container.
+     *
+     * @template T of object
+     *
+     * @param string|class-string<T> $id Service identifier.
+     * @param ( $id is class-string<T> ?
+     *          ( null|class-string<T>|(Closure(self, array<string, mixed>): T) ) :
+     *          ( null|string|(Closure(self, array<string, mixed>): object) )
+     *        ) $implementation Concrete implementation or factory.
+     * @param bool $override True to override preregistered implementation if there's any.
+     *
+     * @return static Returns the container instance for method chaining.
      *
      * @throws ServiceAlreadyBoundException When service is already bound.
      * @throws BindingException When singleton cannot be registered.
+     *
+     * @example
+     *  ```php
+     *  // Register a singleton service
+     *  $container->singleton(ConfigInterface::class, function() {
+     *      return new Config('/path/to/config.json');
+     *  });
+     *
+     *  // Always returns the same config instance
+     *  $config1 = $container->get(ConfigInterface::class);
+     *  $config2 = $container->get(ConfigInterface::class);
+     *  // $config1 === $config2 is true
+     *  ```
      */
     public function singleton(string $id, null|string|Closure $implementation = null, bool $override = false): static
     {
@@ -957,13 +1165,33 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Resolve all services under a specific tag.
+     *
+     * Retrieves and instantiates all services that have been registered
+     * under the given tag.
+     *
+     * @template T of object
+     * @param string|class-string<T> $tag Tag name.
+     *
+     * @return ( $tag is class-string<T> ? array<T> : array<object> ) Array of resolved services.
      *
      * @throws ServiceNotFoundException When any tagged service is not found.
      * @throws CircularDependencyException When circular dependencies are detected.
      * @throws AutowiringException When autowiring fails.
      * @throws ResolutionException When resolution fails for other reasons.
      * @throws ContainerException When resolution fails for other reasons.
+     *
+     * @example
+     *  ```php
+     *  // Tag multiple services
+     *  $container->tag('payment', [
+     *      StripePayment::class,
+     *      PayPalPayment::class
+     *  ]);
+     *
+     *  // Resolve all tagged payment services
+     *  $paymentMethods = $container->resolveTagged('payment');
+     *  ```
      */
     public function resolveTagged(string $tag): array
     {
@@ -981,10 +1209,35 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Tag several services under a common tag.
+     *
+     * Tags provide a way to group related services so they can be resolved
+     * collectively later.
+     *
+     * @template T of object
+     * @param string|class-string<T> $tag Tag name.
+     * @param ( $tag is class-string<T> ?
+     *          array<class-string<T>> :
+     *          array<string>
+     *        ) $ids Array of service identifiers to tag.
+     * @param bool $merge Whether to merge the services on given tag or replace them by the given service ids list.
+     *
+     * @return static Returns the container instance for method chaining.
      *
      * @throws ServiceNotFoundException When any of the services cannot be found.
      * @throws ContainerException When the tag operation fails.
+     *
+     * @example
+     *  ```php
+     *  // Tag multiple services
+     *  $container->tag('logging', [
+     *      FileLogger::class,
+     *      DatabaseLogger::class
+     *  ]);
+     *
+     *  // Add another logger to the tag
+     *  $container->tag('logging', [ConsoleLogger::class]);
+     *  ```
      */
     public function tag(string $tag, array $ids, bool $merge = true): static
     {
@@ -1033,8 +1286,32 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
-    */
+     * Untag service(s) under a common tag.
+     *
+     * Removes one or more services from a specific tag.
+     *
+     * @template T of object
+     * @param string|class-string<T> $tag Tag name.
+     * @param ( $tag is class-string<T> ?
+     *          array<class-string<T>>|class-string<T> :
+     *          array<string>|string
+     *        ) $ids Service identifier(s) to untag.
+     *
+     * @return static Returns the container instance for method chaining.
+     *
+     * @example
+     *  ```php
+     *  // Remove specific services from a tag
+     *  $container->untag('logging', [FileLogger::class]);
+     *
+     *  // Remove all services from a tag
+     *  $container->untag('logging', [
+     *      FileLogger::class,
+     *      DatabaseLogger::class,
+     *      ConsoleLogger::class
+     *  ]);
+     *  ```
+     */
     public function untag(string $tag, array|string $ids): static
     {
         $ids = is_array($ids) ? $ids : [ $ids ];
@@ -1064,10 +1341,32 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Extend an existing binding.
+     *
+     * Allows decorating or modifying a service after it has been resolved
+     * from the container.
+     *
+     * @template T of object
+     * @param string|class-string<T> $id Service identifier.
+     * @param ( $id is class-string<T> ?
+     *          ( Closure(T, self): T ) :
+     *          ( Closure(object, self): object )
+     *        ) $extension Extension callback.
+     *
+     * @return static Returns the container instance for method chaining.
      *
      * @throws ServiceNotFoundException When the service is not found.
      * @throws ContainerException When extending fails.
+     *
+     * @example
+     *  ```php
+     *  // Extend an existing service to add additional functionality
+     *  $container->extend(LoggerInterface::class, function($logger, $container) {
+     *      // Add additional logging capabilities
+     *      $logger->addHandler(new SentryLogHandler());
+     *      return $logger;
+     *  });
+     *  ```
      */
     public function extend(string $id, Closure $extension): static
     {
@@ -1083,7 +1382,7 @@ class Container implements ContainerInterface
             $this->extensions[ $id ] = [];
         }
 
-        /** @phpstan-var (Closure(object, ContainerInterface): object) $extension */
+        /** @phpstan-var (Closure(object, Container): object) $extension */
 
         $this->extensions[ $id ][] = $extension;
 
@@ -1091,10 +1390,22 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Remove a binding from the container.
+     *
+     * Unregisters a previously bound service identifier from the container.
+     *
+     * @param string $id Service identifier.
+     *
+     * @return static Returns the container instance for method chaining.
      *
      * @throws ServiceNotFoundException When the service is not found.
      * @throws ContainerException When unbinding fails.
+     *
+     * @example
+     *  ```php
+     *  // Remove a specific service binding
+     *  $container->unbind(UserRepositoryInterface::class);
+     *  ```
      */
     public function unbind(string $id): static
     {
@@ -1134,7 +1445,21 @@ class Container implements ContainerInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Remove contextual bindings for a concrete class.
+     *
+     * @param string $concrete The concrete class.
+     * @param string|null $abstract Optional. The abstract type to remove. If null, removes all.
+     *
+     * @return static
+     *
+     * @example
+     *  ```php
+     *  // Remove all contextual bindings for a specific class
+     *  $container->forgetWhen(UserService::class);
+     *
+     *  // Remove a specific contextual binding for a class
+     *  $container->forgetWhen(UserService::class, LoggerInterface::class);
+     *  ```
      */
     public function forgetWhen(string $concrete, ?string $abstract = null): static
     {

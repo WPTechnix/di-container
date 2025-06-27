@@ -21,7 +21,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "WPTechnix\\Tests\\DI\\": "tests/"
+            "WPTechnix\\DI\\Tests\\": "tests/"
         }
     },
     "authors": [

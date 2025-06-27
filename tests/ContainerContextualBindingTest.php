@@ -1,19 +1,21 @@
 <?php
 
-/**
- * Tests for contextual bindings.
- *
- * @package WPTechnix\DI\Tests
- * @author WPTechnix <developer@wptechnix.com>
- */
-
 declare(strict_types=1);
 
-namespace WPTechnix\Tests\DI;
+namespace WPTechnix\DI\Tests;
 
 use Closure;
 use Exception;
 use WPTechnix\DI\Exceptions\BindingException;
+use WPTechnix\DI\Tests\Fixture\AnotherImplementation;
+use WPTechnix\DI\Tests\Fixture\AnotherInterface;
+use WPTechnix\DI\Tests\Fixture\NestedDependency;
+use WPTechnix\DI\Tests\Fixture\ServiceWithDependency;
+use WPTechnix\DI\Tests\Fixture\ServiceWithMethodInjection;
+use WPTechnix\DI\Tests\Fixture\ServiceWithPropertyInjection;
+use WPTechnix\DI\Tests\Fixture\SimpleImplementation;
+use WPTechnix\DI\Tests\Fixture\TestInterface;
+use WPTechnix\DI\Tests\Fixture\ValueImplementation;
 
 /**
  * Tests for contextual bindings.

@@ -198,21 +198,18 @@ Organize related bindings in provider classes:
 
 ```php
 use WPTechnix\DI\Contracts\ProviderInterface;
-use WPTechnix\DI\Contracts\ContainerInterface;
+use WPTechnix\DI\Container;
 
 class LoggingServiceProvider implements ProviderInterface 
 {
-    public function register(ContainerInterface $container): void
+    public function __construct(
+        protected Container $container
+    ) {}
+
+    public function register(): void
     {
-        $container->singleton(LoggerInterface::class, FileLogger::class);
-        $container->singleton(LoggerFactory::class);
-    }
-    
-    public function boot(ContainerInterface $container): void
-    {
-        // Bootstrap the service if needed
-        $logger = $container->get(LoggerInterface::class);
-        $logger->info('Logging service started');
+        $this->container->singleton(LoggerInterface::class, FileLogger::class);
+        $this->container->singleton(LoggerFactory::class);
     }
 }
 
@@ -253,7 +250,7 @@ The container integrates seamlessly with WordPress:
 ```php
 // In your main plugin file
 class MyPlugin {
-    private ContainerInterface $container;
+    private Container $container;
     
     public function __construct() {
         $this->container = new Container();

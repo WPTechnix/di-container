@@ -10,7 +10,6 @@
  *
  * @package WPTechnix\DI\Contracts
  * @author WPTechnix <developers@wptechnix.com>
- * @since 0.1.0
  */
 
 declare(strict_types=1);
@@ -18,8 +17,8 @@ declare(strict_types=1);
 namespace WPTechnix\DI\Contracts;
 
 use Closure;
-use WPTechnix\DI\Contracts\ContainerInterface;
 use WPTechnix\DI\Exceptions\BindingException;
+use Psr\Container\ContainerInterface;
 
 /**
  * Interface for contextual bindings builder.

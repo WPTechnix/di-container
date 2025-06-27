@@ -21,15 +21,6 @@ interface ProviderInterface
 {
     /**
      * Register services.
-     *
-     * @param ContainerInterface $container The DI container.
      */
-    public function register(ContainerInterface $container): void;
-
-    /**
-     * Boot services.
-     *
-     * @param ContainerInterface $container The DI container.
-     */
-    public function boot(ContainerInterface $container): void;
+    public function register(): void;
 }

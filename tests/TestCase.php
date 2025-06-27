@@ -1,33 +1,26 @@
 <?php
-/**
- * Base test case for all tests.
- *
- * @package WPTechnix\DI\Tests
- * @author WPTechnix <developer@wptechnix.com>
- */
 
 declare(strict_types=1);
 
-namespace WPTechnix\Tests\DI;
+namespace WPTechnix\DI\Tests;
 
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 use ReflectionClass;
 use ReflectionException;
 use WPTechnix\DI\Container;
+use WPTechnix\DI\Tests\Fixture\AbstractClass;
+use WPTechnix\DI\Tests\Fixture\AnotherInterface;
+use WPTechnix\DI\Tests\Fixture\SimpleImplementation;
+use WPTechnix\DI\Tests\Fixture\TestInterface;
+use WPTechnix\DI\Tests\Fixture\ValueImplementation;
 
-/**
- * Base test case for all tests.
- *
- * @package WPTechnix\DI\Tests
- * @author WPTechnix <developer@wptechnix.com>
- */
 class TestCase extends PHPUnitTestCase {
-	
+
 	/**
 	 * @var Container
 	 */
 	protected Container $container;
-	
+
 	/**
 	 * Set up a fresh container for each test.
 	 */
@@ -36,7 +29,7 @@ class TestCase extends PHPUnitTestCase {
 		parent::setUp();
 		$this->container = new Container();
 	}
-	
+
 	/**
 	 * Helper method to set up common interface bindings.
 	 */
@@ -46,7 +39,7 @@ class TestCase extends PHPUnitTestCase {
 		$this->container->bind(AnotherInterface::class, ValueImplementation::class);
 		$this->container->bind(AbstractClass::class, SimpleImplementation::class);
 	}
-	
+
 	/**
 	 * Helper method to access private properties for testing internal state.
 	 * @throws ReflectionException
@@ -58,7 +51,7 @@ class TestCase extends PHPUnitTestCase {
 		$prop->setAccessible(true);
 		return $prop->getValue($object);
 	}
-	
+
 	/**
 	 * Helper method to set private properties for testing.
 	 * @throws ReflectionException
