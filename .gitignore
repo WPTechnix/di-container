@@ -1,0 +1,19 @@
+/vendor/
+/node_modules/
+composer.lock
+package-lock.json
+
+# Tool caches and build artifacts.
+/.phpunit.cache/
+/.phpunit.result.cache
+/.phpstan.cache/
+*.cache
+/build/
+/coverage/
+
+.DS_Store
+*.log
+
+/.idea/
+/.zed/
+/.claude/

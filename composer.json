@@ -1,0 +1,71 @@
+{
+  "name": "wptechnix/di-container",
+  "description": "A minimal, explicit PSR-11 dependency injection container for PHP.",
+  "type": "library",
+  "keywords": [
+    "container",
+    "dependency-injection",
+    "di",
+    "psr-11",
+    "service-provider",
+    "ioc"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "WPTechnix",
+      "homepage": "https://github.com/wptechnix"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/wptechnix/di-container/issues",
+    "source": "https://github.com/wptechnix/di-container"
+  },
+  "require": {
+    "php": "^8.0",
+    "psr/container": "^1.1 || ^2.0"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.0",
+    "phpstan/phpstan-strict-rules": "^2.0",
+    "phpunit/phpunit": "^9.6",
+    "squizlabs/php_codesniffer": "^3.10 || ^4.0"
+  },
+  "provide": {
+    "psr/container-implementation": "1.0 || 2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "WPTechnix\\DI\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "WPTechnix\\DI\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit -d memory_limit=512M",
+    "phpcs": "phpcs -d memory_limit=512M",
+    "phpcbf": "phpcbf -d memory_limit=512M",
+    "phpstan": "phpstan analyse --memory-limit=512M",
+    "check": [
+      "@phpcs",
+      "@phpstan",
+      "@test"
+    ]
+  },
+  "scripts-descriptions": {
+    "test": "Run the PHPUnit test suite.",
+    "phpcs": "Check PSR-12 coding standards.",
+    "phpcbf": "Automatically fix coding standard violations.",
+    "phpstan": "Run PHPStan static analysis (level 10).",
+    "check": "Run coding standards, static analysis and tests."
+  },
+  "config": {
+    "sort-packages": true,
+    "optimize-autoloader": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

@@ -1,0 +1,38 @@
+name: Sync Wiki
+
+# Mirrors the docs/ folder to the repository's GitHub Wiki on every push to
+# main that touches the documentation (or this workflow).
+#
+# Prerequisite: the wiki must be initialized once before this can run. Open the
+# repository's "Wiki" tab and create any first page (e.g. an empty Home) so the
+# <repo>.wiki.git repository exists; afterwards every push keeps it in sync.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/wiki.yml'
+
+permissions:
+  contents: write
+
+# Avoid concurrent pushes to the wiki repository clobbering each other.
+concurrency:
+  group: sync-wiki
+  cancel-in-progress: true
+
+jobs:
+  sync-wiki:
+    name: Publish docs/ to the wiki
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Sync docs/ to wiki
+        uses: Andrew-Chen-Wang/github-wiki-action@v5
+        with:
+          path: docs/
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'docs: sync wiki from docs/ @ ${{ github.sha }}'

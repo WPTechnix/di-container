@@ -1,0 +1,15 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: wptechnix-di-container-dev
+    volumes:
+      - .:/app
+      - composer-cache:/tmp/composer
+    working_dir: /app
+    tty: true
+    stdin_open: true
+
+volumes:
+  composer-cache:
