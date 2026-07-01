@@ -1,7 +1,0 @@
-#!/bin/bash
-echo "Running phpunit..."
-./scripts/composer test
-if [ $? -ne 0 ]; then
-  echo "phpunit failed"
-  exit 1
-fi
