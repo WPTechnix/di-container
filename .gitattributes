@@ -20,4 +20,5 @@
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist  export-ignore
 /docs                 export-ignore
+/scripts              export-ignore
 /CHANGELOG.md         export-ignore
