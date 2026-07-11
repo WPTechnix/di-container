@@ -12,6 +12,7 @@
 /.gitattributes     export-ignore
 /.gitignore         export-ignore
 
+/commitlint.config.cjs export-ignore
 /commitlint.config.js export-ignore
 /docker-compose.yml   export-ignore
 /Dockerfile           export-ignore
