@@ -2,18 +2,16 @@
 * text=auto eol=lf
 
 # Ensure shell scripts are executable and have LF line endings.
-/scripts/* text eol=lf diff linguist-vendored
+/scripts/* text eol=lf
 
 # Exclude development-only files from the distributed package.
 /.github            export-ignore
-/.husky             export-ignore
 /tests              export-ignore
 /.editorconfig      export-ignore
 /.gitattributes     export-ignore
 /.gitignore         export-ignore
 
 /commitlint.config.cjs export-ignore
-/commitlint.config.js export-ignore
 /docker-compose.yml   export-ignore
 /Dockerfile           export-ignore
 /package.json         export-ignore
