@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GitHub Security Advisory
+    url: https://github.com/wptechnix/di-container/security/advisories/new
+    about: Please report security vulnerabilities here.
