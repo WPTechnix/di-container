@@ -17,3 +17,8 @@ package-lock.json
 /.idea/
 /.zed/
 /.claude/
+
+# Local overrides for tool configuration (dist versions are tracked).
+/phpcs.xml
+/phpstan.neon
+/phpunit.xml
