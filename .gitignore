@@ -1,22 +1,24 @@
-/vendor/
-/node_modules/
+vendor/
+node_modules/
 composer.lock
 package-lock.json
 
 # Tool caches and build artifacts.
-/.phpunit.cache/
-/.phpunit.result.cache
-/.phpstan.cache/
+.phpunit.cache/
+.phpunit.result.cache
+.phpstan.cache/
 *.cache
-/build/
-/coverage/
+build/
+coverage/
 
 .DS_Store
 *.log
 
-/.idea/
-/.zed/
-/.claude/
+.idea/
+.zed/
+.claude/
+.cursor/
+.opencode/
 
 # Local overrides for tool configuration (dist versions are tracked).
 /phpcs.xml

@@ -1,23 +1,17 @@
-# Normalize line endings.
+# Normalize text files to LF in the repository.
 * text=auto eol=lf
 
-# Ensure shell scripts are executable and have LF line endings.
-/scripts/* text eol=lf
+# Exclude development-only files from distribution archives.
+tests/                 export-ignore
+docs/                  export-ignore
+scripts/               export-ignore
 
-# Exclude development-only files from the distributed package.
-/.github            export-ignore
-/tests              export-ignore
-/.editorconfig      export-ignore
-/.gitattributes     export-ignore
-/.gitignore         export-ignore
-
-/commitlint.config.cjs export-ignore
-/docker-compose.yml   export-ignore
-/Dockerfile           export-ignore
-/package.json         export-ignore
-/phpcs.xml.dist   export-ignore
-/phpstan.neon.dist export-ignore
-/phpunit.xml.dist  export-ignore
-/docs                 export-ignore
-/scripts              export-ignore
-/CHANGELOG.md         export-ignore
+.editorconfig          export-ignore
+.git*                  export-ignore
+commitlint.config.cjs  export-ignore
+docker-compose.yml     export-ignore
+Dockerfile             export-ignore
+package.json           export-ignore
+phpcs.xml.dist         export-ignore
+phpstan.neon.dist      export-ignore
+phpunit.xml.dist       export-ignore
