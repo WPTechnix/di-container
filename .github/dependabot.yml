@@ -9,7 +9,6 @@ updates:
       timezone: "UTC"
     labels:
       - "dependencies"
-      - "php"
     open-pull-requests-limit: 10
     groups:
       dev-dependencies:
