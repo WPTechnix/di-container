@@ -49,9 +49,9 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          php-version: "8.4"
           coverage: none
-          tools: composer:v2
+          tools: composer
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
@@ -61,4 +61,3 @@ jobs:
 
       - name: Run PHPCS
         run: composer phpcs
-
