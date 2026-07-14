@@ -1,4 +1,8 @@
 module.exports = {
   extends: ["@commitlint/config-conventional"],
-  ignores: [(message) => /^Bumps \[.+]\(.+\) from .+ to .+\.$/m.test(message)],
+  ignores: [
+    (message) =>
+      /^(?:chore(?:\([^)]+\))?:\s*)?bump\b/i.test(message) ||
+      /^Bumps?\b/i.test(message),
+  ],
 };
