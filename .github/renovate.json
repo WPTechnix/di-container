@@ -1,0 +1,48 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "timezone": "UTC",
+  "schedule": ["before 09:00 on monday"],
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "semanticCommits": "enabled",
+  "rangeStrategy": "replace",
+  "packageRules": [
+    {
+      "description": "Runtime dependency (psr/container) is part of the published contract: widen ranges so downstream consumers keep working, and always review by hand.",
+      "matchDepTypes": ["require"],
+      "rangeStrategy": "widen",
+      "semanticCommitType": "build",
+      "automerge": false
+    },
+    {
+      "description": "Dev tooling (phpstan, phpunit, php_codesniffer): safe to automerge minor & patch once CI (PHPUnit + PHPStan + PHPCS) is green.",
+      "matchDepTypes": ["require-dev"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "semanticCommitType": "build",
+      "automerge": true
+    },
+    {
+      "description": "GitHub Actions: group into one PR, pin to commit SHAs, and automerge minor/patch/digest.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions",
+      "semanticCommitType": "ci",
+      "addLabels": ["ci"]
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
+      "automerge": true
+    },
+    {
+      "description": "Major bumps always need a human — never automerge, and flag them.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "addLabels": ["major-update"]
+    }
+  ]
+}
